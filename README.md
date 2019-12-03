@@ -9,6 +9,7 @@ Vanilla [Ruby](http://ruby-lang.org/) was my language of choice. All code is tes
 ## Progress ##
 
 * [Day 1](https://adventofcode.com/2019/day/1) – [code](2019/Day%201), [answer](2019/Day%201/output)
+* [Day 2](https://adventofcode.com/2019/day/2) – not started yet
 
 ## Credits ##
 

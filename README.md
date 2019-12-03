@@ -10,6 +10,6 @@ Vanilla [Ruby](http://ruby-lang.org/) was my language of choice. All code is tes
 
 * [Day 1](https://adventofcode.com/2019/day/1) – [code](2019/Day%201), [answer](2019/Day%201/output)
 
-### Credits
+## Credits ##
 
 Solved by [Glutexo](http://github.com/Glutexo). 🦎 Cheers!

@@ -1,12 +1,12 @@
 #!/usr/bin/env ruby
 
-require_relative('solver')
+require('solver')
 
 sum = 0
 
 $<.each_line do |line|
   mass = line.rstrip.to_i
-  fuel = Solver::total_fuel_required(mass)
+  fuel = Solver::fuel_required(mass)
   sum += fuel
 end
 

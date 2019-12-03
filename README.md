@@ -13,6 +13,35 @@ Vanilla [Ruby](http://ruby-lang.org/) was my language of choice. All code is tes
   * [Part 2](https://adventofcode.com/2019/day/1#part2) – [answer](2019/Day%201/output2)
 * [Day 2](https://adventofcode.com/2019/day/2) – not started yet
 
+## Installation ##
+
+1. Use [Ruby](http://www.ruby-lang.org/) version 2.6.3.
+
+   ```
+   $ brew install rbenv
+   $ rbenv install 2.6.3
+   $ rbenv local 2.6.3
+   ```
+
+2. Go to the Day folder.
+3. Bundle all the things.
+
+   ```
+   $ bundle install
+   ```
+
+4. Run the tests.
+
+   ```
+   $ rspec -I lib test/*
+   ```
+   
+5. Run the scripts in the _bin_ folder. Feed them with resources in the _var_ folder.
+
+   ```
+   $ ruby -I lib bin/solve.rb var/input 
+   ```
+
 ## Credits ##
 
 Solved by [Glutexo](http://github.com/Glutexo). 🦎 Cheers!

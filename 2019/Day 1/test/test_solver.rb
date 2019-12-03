@@ -1,5 +1,5 @@
 require('rspec-parameterized')
-require_relative('solver')
+require('solver')
 
 describe('Solver::fuel_required') do
   where(:mass, :fuel) do

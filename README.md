@@ -11,7 +11,10 @@ Vanilla [Ruby](http://ruby-lang.org/) was my language of choice. All code is tes
 * [Day 1](https://adventofcode.com/2019/day/1) – [code](2019/Day%201)
   * [Part 1](https://adventofcode.com/2019/day/1) – [answer](2019/Day%201/output1)
   * [Part 2](https://adventofcode.com/2019/day/1#part2) – [answer](2019/Day%201/output2)
-* [Day 2](https://adventofcode.com/2019/day/2) – not started yet
+* [Day 2](https://adventofcode.com/2019/day/2)
+  * [Part 1](https://adventofcode.com/2019/day/2) – [answer](2019/Day%202/output)
+  * [Part 2](https://adventofcode.com/2019/day/1#part2) – not started yet
+
 
 ## Installation ##
 

@@ -1,39 +1,46 @@
+require('instructions')
+
 module Solver
-  Instruction = Struct.new(:num_args, :function)
-  
-  INSTRUCTIONS = {
-    1 => Instruction.new(3, lambda do |input, x1_i, x2_i, target_i|
-      output = input.dup
-      output[target_i] = input[x1_i] + input[x2_i]
-      output
-    end),
-    2 => Instruction.new(3, lambda do |input, x1_i, x2_i, target_i|
-      output = input.dup
-      output[target_i] = input[x1_i] * input[x2_i]
-      output
-    end),
-    99 => Instruction.new(0, lambda do |input|
-      return nil
-    end)
-  }
-  
   def execute(intcode)
     i = 0
-    while i < intcode.length do
-      instruction_code = intcode[i]
-      raise RuntimeError unless INSTRUCTIONS.has_key?(instruction_code)
-      
-      instruction = INSTRUCTIONS[instruction_code]
-      
-      i = i.succ
-      args = intcode[i...i + instruction.num_args]
-      result = instruction.function.call(intcode, *args)
-      result ? intcode = result : break
-      
-      i += instruction.num_args
+    loop do
+      begin
+        intcode, i = step(intcode, i)
+      rescue Instructions::ProgramEnd
+        return intcode
+      end
     end
-    intcode
   end
   
-  module_function(:execute)
+  private
+  
+    def step(intcode, i)
+      with_instruction(intcode, i) do |instruction, args|
+        intcode = instruction.function.call(intcode, *args)
+        i = i.succ + instruction.num_args
+        return intcode, i
+      end
+    end
+  
+    def with_instruction(intcode, i)
+      instruction = load_instruction(intcode, i)
+      args = load_args(intcode, i, instruction.num_args)
+      yield instruction, args
+    end
+    
+    def load_instruction(intcode, i)
+      instruction = intcode[i]
+      raise RuntimeError unless Instructions::INSTRUCTIONS.has_key?(instruction)
+      Instructions::INSTRUCTIONS[instruction]
+    end
+  
+    def load_args(intcode, i, num_args)
+      first = i + 1
+      last = first + num_args
+      intcode[first...last]
+    end
+  
+  module_function(
+    :execute, :step, :with_instruction, :load_instruction, :load_args
+  )
 end

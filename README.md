@@ -6,8 +6,8 @@ This is my attempt to solve the puzzles from the [Advent of Code](https://advent
 
 ## Years ##
 
-- [2019][2019]
-- [2020][2020]
+- [2019](2019)
+- [2020](2020)
 
 ## Credits ##
 

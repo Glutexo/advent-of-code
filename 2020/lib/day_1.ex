@@ -5,7 +5,7 @@ defmodule Day1 do
     input
     |> String.split()
     |> Enum.map(&String.to_integer/1)
-    |> Helpers.permutations()
+    |> Helpers.combinations()
     |> Enum.find(&match/1)
     |> result()
   end

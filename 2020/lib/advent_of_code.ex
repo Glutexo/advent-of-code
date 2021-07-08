@@ -2,19 +2,24 @@ defmodule AdventOfCode do
   @suffixes ["_example", ""]
   
   def main(args \\ []) do
-    Enum.at(args, 0) |> run_day()
+    day_num = Enum.at(args, 0)
+    run_day(day_num)
   end
 
   defp run_day(day) do
-    Enum.map(@suffixes, fn suffix -> run_day(day, suffix) end)    
+    run_fn = fn suffix -> run_day(day, suffix) end
+    Enum.map(@suffixes, run_fn)
   end
 
   defp run_day(day, suffix) do
-    input = "data/day_" <> day <> suffix <> ".txt" |> File.read!()
-    module(day).solve(input) |> IO.puts 
- end
+    file_name = "data/day_" <> day <> suffix <> ".txt"
+    input = File.read!(file_name)
+    mod = module(day)
+    mod.solve(input) |> IO.puts()
+  end
 
   defp module(day) do
-    "Elixir.Day" <> day |> String.to_atom()
+    name = "Elixir.Day" <> day
+    String.to_atom(name)
   end
 end

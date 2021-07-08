@@ -1,13 +1,13 @@
 defmodule Helpers do
-  def permutations([]) do
+  def combinations([]) do
     []
   end
 
-  def permutations([head | tail]) do
-    permutations(head, tail) ++ permutations(tail)
+  def combinations([head | tail]) do
+    combinations(head, tail) ++ combinations(tail)
   end
 
-  def permutations(head, tail) do
+  def combinations(head, tail) do
     Enum.map(tail, fn item -> {head, item} end)
   end
 end

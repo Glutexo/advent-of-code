@@ -1,44 +1,8 @@
 defmodule Day1 do
-#  defmodule Windows do
-#    defstruct previous: [], current: []
-#  end
-  
 #  defmodule Accumulator do
 #    defstruct count: 0, windows: %Windows{}
 #  end
   
-  defmodule Window do
-    def shift(windows) do
-      Enum.reduce(windows, [], &shift_reduce/2)
-    end
-
-    defp shift_reduce(elem, accumulator) do
-      shift_reduce_unchanged_part(accumulator)
-      ++ shift_reduce_changed_part(elem, accumulator)
-      ++ shift_reduce_new_part(elem)
-    end
-
-    defp shift_reduce_unchanged_part(accumulator) do
-      Enum.slice(accumulator, 0..-2)
-    end
-
-    defp shift_reduce_changed_part(_elem, []) do
-      []
-    end
-
-    defp shift_reduce_changed_part(elem, accumulator) do
-      [Enum.at(accumulator, -1) ++ [Enum.at(elem, 0)]]
-    end
-
-    defp shift_reduce_new_part(elem) when length(elem) <= 1 do
-      []
-    end
-
-    defp shift_reduce_new_part(elem) do
-      [Enum.slice(elem, 1..-1)]
-    end
-  end
-
   def solve(input) do
     input
     |> Enum.map(&String.trim_trailing/1)
@@ -67,29 +31,32 @@ end
 
 defmodule Windows do
   defmodule Accumulator do
-    defstruct(result: [], element: nil)
+    defstruct(result: [], items: [])
   end
 
-  def push(windows, element) do
-    accumulator = %Accumulator{element: element}
-    Enum.reduce(windows, accumulator, &reduce/2)
+  def init(count) do
+    List.duplicate([], count)
   end
-  
-  defp reduce(element, accumulator) do
-    window = [accumulator.element | Enum.slice(element, 0..-2)]
+
+  def push(windows, items, size) do
+    initial = %Accumulator{items: items}
+    reducer = fn element, accumulator ->
+      reduce(element, accumulator, size)
+    end
+    Enum.reduce(windows, initial, reducer)
+  end
+
+  defp reduce(element, accumulator, size) do
+    extended = accumulator.items ++ element
+    {window, next} = Enum.split(extended, size)
     result = accumulator.result ++ [window]
-    next = Enum.at(element, -1)
-    %Accumulator{result: result, element: next}
-  end
-
-  defp result(window_count) do
-    List.duplicate([], window_count)
+    %Accumulator{result: result, items: next}
   end
 end
 
 defmodule WindowsTest do
   defmodule TestData do
-    defstruct(input: [], element: nil, result: [])
+    defstruct([:input, :items, :size, :result])
   end
 
   defmodule TestResult do
@@ -99,76 +66,166 @@ defmodule WindowsTest do
   defmodule Tests do
     @test_data [
       %TestData{
-	input: [[2, 1, 0]],
-	element: 3,
-	result: %Windows.Accumulator{
-	  result: [[3, 2, 1]],
-	  element: 0
-	},
+        input: [[2, 1, 0]],
+        items: [3],
+        size: 3,
+        result: %Windows.Accumulator{
+          result: [[3, 2, 1]],
+          items: [0]
+        },
       },
       %TestData{
-	input: [[5, 4, 3], [2, 1, 0]],
-	element: 6,
-	result: %Windows.Accumulator{
-	  result: [[6, 5, 4], [3, 2, 1]],
-	  element: 0,
-	},
+        input: [[5, 4, 3], [2, 1, 0]],
+        items: [6],
+        size: 3,
+        result: %Windows.Accumulator{
+          result: [[6, 5, 4], [3, 2, 1]],
+          items: [0],
+        },
       },
       %TestData{
-	input: [[8, 7, 6], [5, 4, 3], [2, 1, 0]],
-	element: 9,
-	result: %Windows.Accumulator{
-	  result: [[9, 8, 7], [6, 5, 4], [3, 2, 1]],
-	  element: 0,
-	},
+        input: [[8, 7, 6], [5, 4, 3], [2, 1, 0]],
+        items: [9],
+        size: 3,
+        result: %Windows.Accumulator{
+          result: [[9, 8, 7], [6, 5, 4], [3, 2, 1]],
+          items: [0],
+        },
       },
       %TestData{
-	input: [[1, 0]],
-	element: 2,
-	result: %Windows.Accumulator{
-	  result: [[2, 1]],
-	  element: 0,
-	},
+        input: [[1, 0]],
+        items: [2],
+        size: 2,
+        result: %Windows.Accumulator{
+          result: [[2, 1]],
+          items: [0],
+        },
       },
       %TestData{
-	input: [[3, 2], [1, 0]],
-	element: 4,
-	result: %Windows.Accumulator{
-	  result: [[4, 3], [2, 1]],
-	  element: 0,
-	},
+        input: [[3, 2], [1, 0]],
+        items: [4],
+        size: 2,
+        result: %Windows.Accumulator{
+          result: [[4, 3], [2, 1]],
+          items: [0],
+        },
       },
       %TestData{
-	input: [[5, 4], [3, 2], [1, 0]],
-	element: 6,
-	result: %Windows.Accumulator{
-	  result: [[6, 5], [4, 3], [2, 1]],
-	  element: 0,
-	},
+        input: [[5, 4], [3, 2], [1, 0]],
+        items: [6],
+        size: 2,
+        result: %Windows.Accumulator{
+          result: [[6, 5], [4, 3], [2, 1]],
+          items: [0],
+        },
       },
       %TestData{
-	input: [[0]],
-	element: 1,
-	result: %Windows.Accumulator{
-	  result: [[1]],
-	  element: 0,
-	},
+        input: [[0]],
+        items: [1],
+        size: 1,
+        result: %Windows.Accumulator{
+          result: [[1]],
+          items: [0],
+        },
       },
       %TestData{
-	input: [[1], [0]],
-	element: 2,
-	result: %Windows.Accumulator{
-	  result: [[2], [1]],
-	  element: 0,
-	},
+        input: [[1], [0]],
+        items: [2],
+        size: 1,
+        result: %Windows.Accumulator{
+          result: [[2], [1]],
+          items: [0],
+        },
       },
       %TestData{
-	input: [[2], [1], [0]],
-	element: 3,
-	result: %Windows.Accumulator{
-	  result: [[3], [2], [1]],
-	  element: 0,
-	},
+        input: [[2], [1], [0]],
+        items: [3],
+        size: 1,
+        result: %Windows.Accumulator{
+          result: [[3], [2], [1]],
+          items: [0],
+        },
+      },
+      %TestData{
+        input: [[], [], []],
+        items: [0],
+        size: 3,
+        result: %Windows.Accumulator{
+          result: [[0], [], []],
+          items: [],
+        },
+      },
+      %TestData{
+        input: [[0], [], []],
+        items: [1],
+        size: 3,
+        result: %Windows.Accumulator{
+          result: [[1, 0], [], []],
+          items: [],
+        },
+      },
+      %TestData{
+        input: [[1, 0], [], []],
+        items: [2],
+        size: 3,
+        result: %Windows.Accumulator{
+          result: [[2, 1, 0], [], []],
+          items: [],
+        },
+      },
+      %TestData{
+        input: [[2, 1, 0], [], []],
+        items: [3],
+        size: 3,
+        result: %Windows.Accumulator{
+          result: [[3, 2, 1], [0], []],
+          items: [],
+        },
+      },
+      %TestData{
+        input: [[3, 2, 1], [0], []],
+        items: [4],
+        size: 3,
+        result: %Windows.Accumulator{
+          result: [[4, 3, 2], [1, 0], []],
+          items: [],
+        },
+      },
+      %TestData{
+        input: [[4, 3, 2], [1, 0], []],
+        items: [5],
+        size: 3,
+        result: %Windows.Accumulator{
+          result: [[5, 4, 3], [2, 1, 0], []],
+          items: [],
+        },
+      },
+      %TestData{
+        input: [[5, 4, 3], [2, 1, 0], []],
+        items: [6],
+        size: 3,
+        result: %Windows.Accumulator{
+          result: [[6, 5, 4], [3, 2, 1], [0]],
+          items: [],
+        },
+      },
+      %TestData{
+        input: [[6, 5, 4], [3, 2, 1], [0]],
+        items: [7],
+        size: 3,
+        result: %Windows.Accumulator{
+          result: [[7, 6, 5], [4, 3, 2], [1, 0]],
+          items: [],
+        },
+      },
+      %TestData{
+        input: [[7, 6, 5], [4, 3, 2], [1, 0]],
+        items: [8],
+        size: 3,
+        result: %Windows.Accumulator{
+          result: [[8, 7, 6], [5, 4, 3], [2, 1, 0]],
+          items: [],
+        },
       },
     ]
 
@@ -177,7 +234,7 @@ defmodule WindowsTest do
     end
 
     defp test(test_data = %TestData{}) do
-      result = Windows.push(test_data.input, test_data.element)
+      result = Windows.push(test_data.input, test_data.items, test_data.size)
       passed = result == test_data.result
       %TestResult{test_data: test_data, result: result, passed: passed}
     end    
@@ -185,9 +242,11 @@ defmodule WindowsTest do
   
 end
 
-Windows.push([[0, 1, 2]], 3)
-|> IO.inspect()
+#Windows.push([[0, 1, 2]], [3], 3)
+#|> IO.inspect()
+IO.puts("Failed tests:")
 WindowsTest.Tests.run()
+|> Enum.filter(&(!&1.passed))
 |> IO.inspect(charlists: :as_chars)
 
 

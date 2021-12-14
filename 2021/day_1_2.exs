@@ -1,356 +1,61 @@
 defmodule Day1 do
-  @size 3
-  
   def solve(input) do
     input
+    |> Groups.create(3)
+    |> Enum.map(&Enum.sum/1)
+    |> Groups.create(2)
+    |> Enum.count(fn [a, b] -> b > a end)
+  end
+end
+
+
+defmodule InputOutput do
+  def input(stream) do
+    stream
     |> Enum.map(&String.trim_trailing/1)
     |> Enum.map(&String.to_integer/1)
-    |> reduce()
-    |> Enum.filter(&filter/1)
-    |> IO.inspect()
-    |> Enum.map(&sum/1)
-    |> Enum.count(&compare/1)
-    |> Integer.to_string()
   end
 
-  def reduce(input) do
-    windows = Windows.init(2)
-    Enum.reduce(input, [windows], &collect/2)
-  end
-
-  defp collect(element, accumulator = [head | _tail]) do
-    {windows, _} = Windows.push(head, [element], @size)
-    [windows | accumulator]
-  end
-
-  defp filter(element) do
-    Windows.complete?(element, @size)
-  end
-
-  defp sum(element) do
-    Enum.map(element, &Enum.sum/1)
-  end
-
-  defp compare([first, second]) do
-    first > second
+  def output(integer) do
+    Integer.to_string(integer) <> "\n"
   end
 end
 
 
-defmodule Windows do
-  def init(count) do
-    List.duplicate([], count)
+defmodule Groups do
+  def create(values, size) do
+    values
+    |> initialize()
+    |> filter(size)
+    |> slice(size)
   end
 
-  def complete?(windows, size) do
-    Enum.all?(windows, fn element ->
-      length(element) == size
-    end)
+  def initialize(values) do
+    Enum.reduce(values, [[]], &reduce/2)
+    |> Enum.map(&Enum.reverse/1)
+    |> Enum.reverse()
   end
 
-  def push(windows, items, size) do
-    initial = {[], items}
-    reducer = fn element, accumulator ->
-      reduce(element, accumulator, size)
-    end
-    Enum.reduce(windows, initial, reducer)
+  defp reduce(element, accumulator) do
+    [[] | Enum.map(accumulator, &([element | &1]))]
   end
 
-  defp reduce(element, {windows, items}, size) do
-    extended = items ++ element
-    {window, next} = Enum.split(extended, size)
-    result = windows ++ [window]
-    {result, next}
+  defp filter(windows, size) do
+    Enum.filter(windows, &(length(&1) >= size))
   end
-end
 
-defmodule TestResult do
-  defstruct([:test_data, :result, :passed])
-end
+  defp slice(windows, size) do
+    Enum.map(windows, &(Enum.slice(&1, 0, size)))
+  end
 
-defmodule TestData do
-  defstruct([:input, :result])
 end
 
 
-defmodule WindowsTest do
-  defmodule TestInput do
-    defstruct([:input, :items, :size])
-  end
 
-  defmodule Tests do
-    @test_data [
-      %TestData{
-        input: %TestInput{
-          input: [[2, 1, 0]],
-          items: [3],
-          size: 3,
-        },
-        result: {
-          [[3, 2, 1]],
-          [0]
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[5, 4, 3], [2, 1, 0]],
-          items: [6],
-          size: 3,
-        },
-        result: {
-          [[6, 5, 4], [3, 2, 1]],
-          [0],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[8, 7, 6], [5, 4, 3], [2, 1, 0]],
-          items: [9],
-          size: 3,
-        },
-        result: {
-          [[9, 8, 7], [6, 5, 4], [3, 2, 1]],
-          [0],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[1, 0]],
-          items: [2],
-          size: 2,
-        },
-        result: {
-          [[2, 1]],
-          [0],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[3, 2], [1, 0]],
-          items: [4],
-          size: 2,
-        },
-        result: {
-          [[4, 3], [2, 1]],
-          [0],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[5, 4], [3, 2], [1, 0]],
-          items: [6],
-          size: 2,
-        },
-        result: {
-          [[6, 5], [4, 3], [2, 1]],
-          [0],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[0]],
-          items: [1],
-          size: 1,
-        },
-        result: {
-          [[1]],
-          [0],
-        },
-      },
-      %TestData{
-        input: %TestInput{ 
-          input: [[1], [0]],
-          items: [2],
-          size: 1,
-        },
-        result: {
-          [[2], [1]],
-          [0],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[2], [1], [0]],
-          items: [3],
-          size: 1,
-        },
-        result: {
-          [[3], [2], [1]],
-          [0],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[], [], []],
-          items: [0],
-          size: 3,
-        },
-        result: {
-          [[0], [], []],
-          [],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[0], [], []],
-          items: [1],
-          size: 3,
-        },
-        result: {
-          [[1, 0], [], []],
-          [],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[1, 0], [], []],
-          items: [2],
-          size: 3,
-        },
-        result: {
-          [[2, 1, 0], [], []],
-          [],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[2, 1, 0], [], []],
-          items: [3],
-          size: 3,
-        },
-        result: {
-          [[3, 2, 1], [0], []],
-          [],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[3, 2, 1], [0], []],
-          items: [4],
-          size: 3,
-        },
-        result: {
-          [[4, 3, 2], [1, 0], []],
-          [],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[4, 3, 2], [1, 0], []],
-          items: [5],
-          size: 3,
-        },
-        result: {
-          [[5, 4, 3], [2, 1, 0], []],
-          [],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[5, 4, 3], [2, 1, 0], []],
-          items: [6],
-          size: 3,
-        },
-        result: {
-          [[6, 5, 4], [3, 2, 1], [0]],
-          [],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[6, 5, 4], [3, 2, 1], [0]],
-          items: [7],
-          size: 3,
-        },
-        result: {
-          [[7, 6, 5], [4, 3, 2], [1, 0]],
-          [],
-        },
-      },
-      %TestData{
-        input: %TestInput{
-          input: [[7, 6, 5], [4, 3, 2], [1, 0]],
-          items: [8],
-          size: 3,
-        },
-        result: {
-          [[8, 7, 6], [5, 4, 3], [2, 1, 0]],
-          [],
-        },
-      },
-    ]
-
-    def run() do
-      Enum.map(@test_data, &test/1)
-    end
-
-    defp test(test_data = %TestData{
-        input: %TestInput{
-          input: input,
-          items: items,
-          size: size
-        }
-      }
-    ) do
-      result = Windows.push(input, items, size)
-      passed = result == test_data.result
-      %TestResult{test_data: test_data, result: result, passed: passed}
-    end    
-  end
-end
-
-defmodule SolutionTest do
-  defmodule TestInput do
-    defstruct([:input])
-  end
-
-  defmodule Tests do
-    @test_data [
-      %TestData{
-        input: %TestInput{
-          input: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
-        },
-        result: [
-          [[10, 9, 8], [7, 6, 5]],
-          [[9, 8, 7], [6, 5, 4]],
-          [[8, 7, 6], [5, 4, 3]],
-          [[7, 6, 5], [4, 3, 2]],
-          [[6, 5, 4], [3, 2, 1]],
-          [[5, 4, 3], [2, 1, 0]],
-          [[4, 3, 2], [1, 0]],
-          [[3, 2, 1], [0]],
-          [[2, 1, 0], []],
-          [[1, 0], []],
-          [[0], []],
-          [[], []],
-        ],
-      },
-    ]
-
-    def run() do
-      Enum.map(@test_data, &test/1)
-    end
-
-    defp test(test_data = %TestData{
-      input: %TestInput{input: input}
-    }) do
-      result = Day1.reduce(input)
-      passed = result == test_data.result
-      %TestResult{test_data: test_data, result: result, passed: passed}
-    end  
-  end
-end
-
-# IO.puts("Failed tests:")
-# WindowsTest.Tests.run()
-#SolutionTest.Tests.run()
-#|> Enum.filter(&(!&1.passed))
-#|> IO.inspect(charlists: :as_chars)
-
-
-input = File.stream!("input1.txt")
-#input = File.stream!("input2.txt")
-solution = Day1.solve(input)
-IO.inspect(solution)
-#output = solution <> "\n"
-#File.write!("output2.txt", output)
+# output = File.stream!("input1.txt")
+output = File.stream!("input2.txt")
+|> InputOutput.input()
+|> Day1.solve()
+|> InputOutput.output()
+IO.write(output)
+File.write!("output2.txt", output)

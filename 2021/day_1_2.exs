@@ -6,14 +6,14 @@ defmodule Day1 do
     |> Enum.map(&String.trim_trailing/1)
     |> Enum.map(&String.to_integer/1)
     |> reduce()
-    |> IO.inspect()
     |> Enum.filter(&filter/1)
+    |> IO.inspect()
     |> Enum.map(&sum/1)
     |> Enum.count(&compare/1)
     |> Integer.to_string()
   end
 
-  defp reduce(input) do
+  def reduce(input) do
     windows = Windows.init(2)
     Enum.reduce(input, [windows], &collect/2)
   end
@@ -299,19 +299,58 @@ defmodule WindowsTest do
   end
 end
 
-defmodule SolutionTests do
-  
+defmodule SolutionTest do
+  defmodule TestInput do
+    defstruct([:input])
+  end
+
+  defmodule Tests do
+    @test_data [
+      %TestData{
+        input: %TestInput{
+          input: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+        },
+        result: [
+          [[10, 9, 8], [7, 6, 5]],
+          [[9, 8, 7], [6, 5, 4]],
+          [[8, 7, 6], [5, 4, 3]],
+          [[7, 6, 5], [4, 3, 2]],
+          [[6, 5, 4], [3, 2, 1]],
+          [[5, 4, 3], [2, 1, 0]],
+          [[4, 3, 2], [1, 0]],
+          [[3, 2, 1], [0]],
+          [[2, 1, 0], []],
+          [[1, 0], []],
+          [[0], []],
+          [[], []],
+        ],
+      },
+    ]
+
+    def run() do
+      Enum.map(@test_data, &test/1)
+    end
+
+    defp test(test_data = %TestData{
+      input: %TestInput{input: input}
+    }) do
+      result = Day1.reduce(input)
+      passed = result == test_data.result
+      %TestResult{test_data: test_data, result: result, passed: passed}
+    end  
+  end
 end
 
 # IO.puts("Failed tests:")
 # WindowsTest.Tests.run()
-# |> Enum.filter(&(!&1.passed))
-# |> IO.inspect(charlists: :as_chars)
+#SolutionTest.Tests.run()
+#|> Enum.filter(&(!&1.passed))
+#|> IO.inspect(charlists: :as_chars)
 
 
 input = File.stream!("input1.txt")
 #input = File.stream!("input2.txt")
 solution = Day1.solve(input)
 IO.inspect(solution)
-output = solution <> "\n"
-File.write!("output2.txt", output)
+#output = solution <> "\n"
+#File.write!("output2.txt", output)

@@ -3,28 +3,27 @@ defmodule Day1 do
     input
     |> Enum.map(&String.trim_trailing/1)
     |> Enum.map(&String.to_integer/1)
-    |> group(3)
-    |> Enum.map(&Enum.sum/1)
+    |> group(3, &Enum.sum/1)
     |> group(2)
     |> Enum.count(fn [a, b] -> b > a end)
     |> Integer.to_string()
   end
 
-  defp group(values, size) do
+  defp group(values, size, transform \\ &(&1)) do
     Enum.reduce(
       values,
       {[], []},
       fn element, {incomplete, complete} ->
         [last | rest] = Enum.map(incomplete ++ [[]], &([element | &1]))
         if length(last) >= size do
-          {rest, [last | complete]}
+          new = Enum.reverse(last) |> transform.()
+          {rest, [new | complete]}
         else
           {[last | rest], complete}
         end
       end
     )
     |> elem(1)
-    |> Enum.map(&Enum.reverse/1)
     |> Enum.reverse()
   end
 end

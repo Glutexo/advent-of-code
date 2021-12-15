@@ -13,15 +13,19 @@ defmodule Day1 do
   defp group(values, size) do
     Enum.reduce(
       values,
-      [[]],
-      fn element, accumulator ->
-        [[] | Enum.map(accumulator, &([element | &1]))]
+      {[], []},
+      fn element, {incomplete, complete} ->
+        [last | rest] = Enum.map(incomplete ++ [[]], &([element | &1]))
+        if length(last) >= size do
+          {rest, [last | complete]}
+        else
+          {[last | rest], complete}
+        end
       end
     )
+    |> elem(1)
     |> Enum.map(&Enum.reverse/1)
     |> Enum.reverse()
-    |> Enum.filter(&(length(&1) >= size))
-    |> Enum.map(&(Enum.slice(&1, 0, size)))
   end
 end
 
